@@ -1,0 +1,13 @@
+BANK_RAG_PROJECT/
+__pycache__/
+faiss_index/
+*.pyc
+.env
+
+Lib/
+Scripts/
+Include/
+share/
+etc/
+pyvenv.cfg
+site-packages/
