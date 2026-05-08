@@ -32,8 +32,8 @@ def load_bank_documents():
 def split_bank_text(documents):
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=50
+        chunk_size=800,
+        chunk_overlap=100
     )
 
     split_docs = splitter.split_documents(documents)
@@ -103,12 +103,17 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
-    docs = db.similarity_search(query, k=3)
+    docs = db.similarity_search(query, k=5)
 
     context = "\n".join([doc.page_content for doc in docs])
 
     prompt = f"""
-    Answer the question based on the context below.
+    You are a banking assistant.
+
+    Answer the question clearly and completely using the context below.
+
+    If the answer is not available, say:
+    "I could not find the answer in the RBI documents."
 
     Context:
     {context}
@@ -116,28 +121,9 @@ def search_bank_answer(db, query):
     Question:
     {query}
 
-    Answer:
+    Detailed Answer:
     """
 
     answer = generate_answer(prompt)
 
     return answer
-
-# ---------------- TEST ----------------
-
-if __name__ == "__main__":
-
-    print("Initializing RAG system...")
-
-    db = initialize_rag_system()
-
-    while True:
-
-        query = input("\nAsk question: ")
-
-        if query.lower() == "exit":
-            break
-
-        answer = search_bank_answer(db, query)
-
-        print("\nAnswer:\n", answer)
