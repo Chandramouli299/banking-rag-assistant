@@ -110,7 +110,10 @@ def search_bank_answer(db, query):
 
     answer = docs[0].page_content
 
-    # Limit long answers
-    answer = answer[:700]
+    # Clean unwanted spaces
+    answer = " ".join(answer.split())
+
+    # Remove very long answers
+    answer = answer[:600]
 
     return answer
