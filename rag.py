@@ -3,21 +3,12 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 import os
 import google.generativeai as genai
 genai.configure(api_key="AIzaSyCBC_19TeVm4taYld4zAn8WIPIu-GvVU3I")
 
 model = genai.GenerativeModel("gemini-1.5-flash")
-
-# ---------------- MODEL ----------------
-
-model_name = "google/flan-t5-large"
-
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 # ---------------- LOAD PDF ----------------
 
@@ -82,26 +73,13 @@ def initialize_rag_system():
 
 # ---------------- GENERATE ANSWER ----------------
 
+gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+
 def generate_answer(prompt):
 
-    inputs = tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=512
-    )
+    response = gemini_model.generate_content(prompt)
 
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=120
-    )
-
-    response = tokenizer.decode(
-        outputs[0],
-        skip_special_tokens=True
-    )
-
-    return response
+    return response.text
 
 # ---------------- SEARCH FUNCTION ----------------
 
@@ -114,22 +92,20 @@ def search_bank_answer(db, query):
     )
 
     if not docs:
-        return "I could not find the answer in the RBI documents."
+        return "I could not find the answer."
 
-    # Select best matching chunk
-    best_doc = docs[0]
+    context = docs[0].page_content
 
-    for doc in docs:
-        if query.lower() in doc.page_content.lower():
-            best_doc = doc
-            break
+    prompt = f"""
+    Answer the question using the context below.
 
-    answer = best_doc.page_content
+    Context:
+    {context}
 
-    # Clean formatting
-    answer = " ".join(answer.split())
+    Question:
+    {query}
+    """
 
-    # Limit answer length
-    answer = answer[:500]
+    final_answer = generate_answer(prompt)
 
-    return answer
+    return final_answer
