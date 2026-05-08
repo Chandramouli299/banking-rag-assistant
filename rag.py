@@ -103,13 +103,14 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
-    # Search similar chunks
-    docs = db.similarity_search(query, k=3)
+    docs = db.similarity_search(query, k=1)
 
     if not docs:
         return "I could not find the answer in the RBI documents."
 
-    # Return best matching chunk directly
     answer = docs[0].page_content
+
+    # Limit long answers
+    answer = answer[:700]
 
     return answer

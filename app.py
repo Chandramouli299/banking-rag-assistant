@@ -328,21 +328,17 @@ if query:
         answer = search_bank_answer(db, query_en)
 
         # ---------------- TRANSLATE ANSWER ----------------
-        if language == "Hindi":
+    if language == "Hindi":
+        answer = GoogleTranslator(
+           source='en',
+           target='hi'
+        ).translate(answer)
 
-            answer = translator.translate(
-                answer,
-                src="en",
-                dest="hi"
-            ).text
-
-        elif language == "Telugu":
-
-            answer = translator.translate(
-                answer,
-                src="en",
-                dest="te"
-            ).text
+    elif language == "Telugu":
+        answer = GoogleTranslator(
+           source='en',
+           target='te'
+        ).translate(answer)
 
     # Save assistant answer
     st.session_state.messages.append({
