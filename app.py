@@ -1,10 +1,8 @@
 import streamlit as st
 from rag import initialize_rag_system, search_bank_answer
-from googletrans import Translator
-
+from deep_translator import GoogleTranslator
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="Banking AI Assistant", layout="wide")
-translator = Translator()
 
 # ---------------- CSS ----------------
 st.markdown("""
@@ -311,19 +309,16 @@ if query:
 
     # ---------------- TRANSLATE QUESTION ----------------
     if language == "Hindi":
-        query_en = translator.translate(
-            query,
-            src="hi",
-            dest="en"
-        ).text
+        query_en = GoogleTranslator(
+            source='hi',
+            target='en'
+        ).translate(query)
 
     elif language == "Telugu":
-        query_en = translator.translate(
-            query,
-            src="te",
-            dest="en"
-        ).text
-
+        query_en = GoogleTranslator(
+            source='te',
+            target='en'
+        ).translate(query)
     else:
         query_en = query
 

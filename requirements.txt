@@ -7,13 +7,4 @@ sentence-transformers
 pypdf
 transformers
 torch
-googletrans==4.0.0rc1
-
-
-streamlit
-langchain
-langchain-community
-faiss-cpu
-sentence-transformers
-pypdf
-googletrans==4.0.0rc1
+deep-translator
