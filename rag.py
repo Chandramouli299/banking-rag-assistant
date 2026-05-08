@@ -9,7 +9,7 @@ import os
 
 # ---------------- MODEL ----------------
 
-model_name = "google/flan-t5-small"
+model_name = "google/flan-t5-base"
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -32,8 +32,8 @@ def load_bank_documents():
 def split_bank_text(documents):
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=100
+        chunk_size=1000,
+        chunk_overlap=200
     )
 
     split_docs = splitter.split_documents(documents)
@@ -103,27 +103,54 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
+    # Retrieve relevant documents
     docs = db.similarity_search(query, k=5)
 
-    context = "\n".join([doc.page_content for doc in docs])
+    # Combine retrieved text
+    context = "\n\n".join([doc.page_content for doc in docs])
 
+    # Better prompt
     prompt = f"""
-    You are a banking assistant.
+You are an expert RBI Banking Assistant.
 
-    Answer the question clearly and completely using the context below.
+Use ONLY the information provided in the context below.
 
-    If the answer is not available, say:
-    "I could not find the answer in the RBI documents."
+Answer the user's question clearly, accurately, and in simple language.
 
-    Context:
-    {context}
+If the answer is not found in the context, say:
+"I could not find the answer in the RBI documents."
 
-    Question:
-    {query}
+------------------------
+CONTEXT:
+{context}
+------------------------
 
-    Detailed Answer:
-    """
+QUESTION:
+{query}
 
-    answer = generate_answer(prompt)
+DETAILED ANSWER:
+"""
+
+    # Tokenize
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=1024
+    )
+
+    # Generate answer
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=200,
+        temperature=0.3,
+        do_sample=True
+    )
+
+    # Decode output
+    answer = tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
 
     return answer
