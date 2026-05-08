@@ -1,11 +1,13 @@
 streamlit
-langchain==0.2.14
-langchain-community==0.2.12
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-huggingface
+langchain-text-splitters
 faiss-cpu
 sentence-transformers
 pypdf
 transformers==4.41.2
 torch
+torchvision
 deep-translator
-accelerate
 sentencepiece

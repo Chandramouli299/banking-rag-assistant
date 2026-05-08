@@ -2,79 +2,82 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-import os
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import torch
 
-model_name = "google/flan-t5-base"
+import os
+
+# ---------------- MODEL ----------------
+
+model_name = "google/flan-t5-small"
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-# -----------------------------
-# Load PDF Documents
-# -----------------------------
+
+# ---------------- LOAD PDF ----------------
+
 def load_bank_documents():
-    file_path = r"C:\Users\chandramouli\Desktop\bank_rag_project\data\RBI - Bank documents.pdf"
+
+    file_path = "RBI_Bank_Documents.pdf"
 
     loader = PyPDFLoader(file_path)
+
     documents = loader.load()
 
     return documents
 
+# ---------------- SPLIT TEXT ----------------
 
-# -----------------------------
-# Split Text into Chunks
-# -----------------------------
 def split_bank_text(documents):
+
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=300,
         chunk_overlap=50
     )
 
     split_docs = splitter.split_documents(documents)
+
     return split_docs
 
+# ---------------- VECTOR DB ----------------
 
-# -----------------------------
-# Create / Load Vector Database
-# -----------------------------
 def create_bank_vector_db(split_docs):
 
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    # Save FAISS index for faster reuse
     if os.path.exists("faiss_index"):
+
         db = FAISS.load_local(
             "faiss_index",
             embeddings,
             allow_dangerous_deserialization=True
-       )
+        )
+
     else:
+
         db = FAISS.from_documents(split_docs, embeddings)
+
         db.save_local("faiss_index")
 
     return db
 
+# ---------------- INITIALIZE ----------------
 
-# -----------------------------
-# Initialize RAG System
-# -----------------------------
 def initialize_rag_system():
+
     documents = load_bank_documents()
+
     split_docs = split_bank_text(documents)
 
     db = create_bank_vector_db(split_docs)
 
     return db
 
+# ---------------- GENERATE ANSWER ----------------
 
-# -----------------------------
-# Search Function
-# -----------------------------
 def generate_answer(prompt):
 
     inputs = tokenizer(
@@ -95,18 +98,46 @@ def generate_answer(prompt):
     )
 
     return response
-# -----------------------------
-# Run standalone test
-# -----------------------------
+
+# ---------------- SEARCH FUNCTION ----------------
+
+def search_bank_answer(db, query):
+
+    docs = db.similarity_search(query, k=3)
+
+    context = "\n".join([doc.page_content for doc in docs])
+
+    prompt = f"""
+    Answer the question based on the context below.
+
+    Context:
+    {context}
+
+    Question:
+    {query}
+
+    Answer:
+    """
+
+    answer = generate_answer(prompt)
+
+    return answer
+
+# ---------------- TEST ----------------
+
 if __name__ == "__main__":
+
     print("Initializing RAG system...")
+
     db = initialize_rag_system()
 
     while True:
-        query = input("\nAsk a question (type 'exit' to quit): ")
+
+        query = input("\nAsk question: ")
 
         if query.lower() == "exit":
             break
 
-        response = generate_answer(db, query)
-        print("\nAnswer:\n", response)
+        answer = search_bank_answer(db, query)
+
+        print("\nAnswer:\n", answer)
