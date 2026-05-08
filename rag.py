@@ -19,7 +19,7 @@ model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 def load_bank_documents():
 
-    file_path = "RBI_Bank_Documents.pdf"
+    file_path = "data/RBI - Bank documents.pdf"
 
     loader = PyPDFLoader(file_path)
 
