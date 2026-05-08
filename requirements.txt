@@ -1,10 +1,10 @@
 streamlit
-langchain
-langchain-community
-langchain-huggingface
+langchain==0.2.14
+langchain-community==0.2.12
 faiss-cpu
 sentence-transformers
 pypdf
-transformers
+transformers==4.41.2
 torch
 deep-translator
+accelerate
