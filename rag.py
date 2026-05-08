@@ -6,6 +6,10 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 import os
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyCBC_19TeVm4taYld4zAn8WIPIu-GvVU3I")
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # ---------------- MODEL ----------------
 
@@ -112,12 +116,20 @@ def search_bank_answer(db, query):
     if not docs:
         return "I could not find the answer in the RBI documents."
 
-    answer = docs[0].page_content
+    # Select best matching chunk
+    best_doc = docs[0]
+
+    for doc in docs:
+        if query.lower() in doc.page_content.lower():
+            best_doc = doc
+            break
+
+    answer = best_doc.page_content
 
     # Clean formatting
     answer = " ".join(answer.split())
 
-    # Limit length
+    # Limit answer length
     answer = answer[:500]
 
     return answer
