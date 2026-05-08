@@ -4,16 +4,14 @@ from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
 
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import torch
 
-# Load free LLM
-from transformers import pipeline
+model_name = "google/flan-t5-base"
 
-llm = pipeline(
-    task="text2text-generation",
-    model="google/flan-t5-base",
-    max_new_tokens=120
-)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 # -----------------------------
 # Load PDF Documents
 # -----------------------------
@@ -77,37 +75,26 @@ def initialize_rag_system():
 # -----------------------------
 # Search Function
 # -----------------------------
-def search_bank_answer(db, query):
+def generate_answer(prompt):
 
-    # Retrieve relevant docs
-    results = db.similarity_search(query, k=4)
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=512
+    )
 
-    # Combine text
-    context = " ".join([doc.page_content for doc in results])
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=120
+    )
 
-    # Clean text
-    import re
-    context = re.sub(r"\n+", " ", context)
-    context = re.sub(r"\s+", " ", context)
+    response = tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
 
-    # Simple prompt
-    prompt = f"""
-    Answer this banking question briefly.
-
-    Question: {query}
-
-    Context: {context}
-
-    Answer:
-    """
-
-    # Generate response
-    response = llm(prompt)
-
-    # Extract text
-    answer = response[0]["generated_text"]
-
-    return answer
+    return response
 # -----------------------------
 # Run standalone test
 # -----------------------------
@@ -121,5 +108,5 @@ if __name__ == "__main__":
         if query.lower() == "exit":
             break
 
-        response = search_bank_answer(db, query)
+        response = generate_answer(db, query)
         print("\nAnswer:\n", response)
