@@ -32,8 +32,8 @@ def load_bank_documents():
 def split_bank_text(documents):
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=700,
-        chunk_overlap=100
+        chunk_size=1000,
+        chunk_overlap=150
     )
 
     split_docs = splitter.split_documents(documents)
@@ -103,49 +103,13 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
-    # Retrieve top matching chunks
+    # Search similar chunks
     docs = db.similarity_search(query, k=3)
 
-    # Combine context
-    context = "\n\n".join([doc.page_content for doc in docs])
+    if not docs:
+        return "I could not find the answer in the RBI documents."
 
-    # Better instruction prompt
-    prompt = f"""
-You are an RBI Banking Assistant.
-
-Read the context carefully and answer the question accurately.
-
-If the exact answer is not available, say:
-"I could not find the answer clearly in the RBI documents."
-
-Context:
-{context}
-
-Question:
-{query}
-
-Answer in simple and complete sentences:
-"""
-
-    # Tokenize
-    inputs = tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=1024
-    )
-
-    # Generate answer
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=150,
-        temperature=0.1,
-        do_sample=False
-    )
-
-    answer = tokenizer.decode(
-        outputs[0],
-        skip_special_tokens=True
-    )
+    # Return best matching chunk directly
+    answer = docs[0].page_content
 
     return answer
