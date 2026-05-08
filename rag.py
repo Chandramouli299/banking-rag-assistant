@@ -9,7 +9,7 @@ import os
 
 # ---------------- MODEL ----------------
 
-model_name = "google/flan-t5-base"
+model_name = "google/flan-t5-large"
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
