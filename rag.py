@@ -32,8 +32,8 @@ def load_bank_documents():
 def split_bank_text(documents):
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=150
+        chunk_size=500,
+        chunk_overlap=100
     )
 
     split_docs = splitter.split_documents(documents)
@@ -103,17 +103,21 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
-    docs = db.similarity_search(query, k=1)
+    docs = db.max_marginal_relevance_search(
+        query,
+        k=2,
+        fetch_k=10
+    )
 
     if not docs:
         return "I could not find the answer in the RBI documents."
 
     answer = docs[0].page_content
 
-    # Clean unwanted spaces
+    # Clean formatting
     answer = " ".join(answer.split())
 
-    # Remove very long answers
-    answer = answer[:600]
+    # Limit length
+    answer = answer[:500]
 
     return answer
