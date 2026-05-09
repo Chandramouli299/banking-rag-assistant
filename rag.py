@@ -96,14 +96,11 @@ def search_bank_answer(db, query):
     docs_and_scores = db.similarity_search_with_score(query, k=3)
 
     if not docs_and_scores:
-        return "I could not find the answer in the RBI documents."
+        return "I could not find the answer in RBI documents."
 
     best_doc, score = docs_and_scores[0]
 
     st.write(f"Similarity Score: {score}")
-
-    if score > 3.0:
-        return "I could not find the answer in the RBI documents."
 
     context = "\n\n".join(
         [doc.page_content for doc, _ in docs_and_scores]
@@ -112,12 +109,7 @@ def search_bank_answer(db, query):
     prompt = f"""
 You are an RBI Banking Assistant.
 
-Answer the question in simple and clear language.
-
-Rules:
-- Only answer using RBI banking context.
-- Keep answer short and clean.
-- Summarize properly.
+Answer clearly and shortly using RBI context only.
 
 Context:
 {context}
@@ -125,7 +117,7 @@ Context:
 Question:
 {query}
 
-Final Answer:
+Answer:
 """
 
     try:
