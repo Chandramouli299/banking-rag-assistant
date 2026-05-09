@@ -32,8 +32,8 @@ def load_bank_documents():
 def split_bank_text(documents):
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100
+        chunk_size=300,
+        chunk_overlap=50
     )
 
     split_docs = splitter.split_documents(documents)
@@ -92,7 +92,6 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
-    # Retrieve documents with scores
     docs_and_scores = db.similarity_search_with_score(query, k=3)
 
     if not docs_and_scores:
@@ -100,11 +99,14 @@ def search_bank_answer(db, query):
 
     best_doc, score = docs_and_scores[0]
 
-    # Filter unrelated questions
-    if score > 2.0:
+    st.write(f"Similarity Score: {score}")
+
+    if score > 10:
         return "I could not find the answer in the RBI documents."
 
-    context = best_doc.page_content
+    context = "\n\n".join(
+        [doc.page_content for doc, _ in docs_and_scores]
+    )
 
     prompt = f"""
 You are an RBI Banking Assistant.
@@ -113,8 +115,8 @@ Answer the question in simple and clear language.
 
 Rules:
 - Only answer using RBI banking context.
-- If unrelated, say you could not find the answer.
 - Keep answer short and clean.
+- Summarize properly.
 
 Context:
 {context}
