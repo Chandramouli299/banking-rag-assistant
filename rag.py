@@ -82,7 +82,11 @@ def initialize_rag_system():
 def generate_answer(prompt):
 
     try:
+        st.write("Sending request to Gemini...")
+
         response = model.generate_content(prompt)
+
+        st.write("Response received!")
 
         return response.text
 
