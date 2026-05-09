@@ -4,11 +4,19 @@ from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
+from dotenv import load_dotenv
 import os
 import google.generativeai as genai
-genai.configure(api_key="AIzaSyCBC_19TeVm4taYld4zAn8WIPIu-GvVU3I")
 
-model = genai.GenerativeModel("gemini-1.5-flash-latest")
+load_dotenv()
+
+genai.configure(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
+
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
 # ---------------- LOAD PDF ----------------
 
 def load_bank_documents():

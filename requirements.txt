@@ -19,3 +19,5 @@ pypdf
 sentencepiece
 
 google-generativeai
+
+python-dotenv
