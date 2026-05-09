@@ -33,8 +33,8 @@ def load_bank_documents():
 def split_bank_text(documents):
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=50
+        chunk_size=500,
+        chunk_overlap=100
     )
 
     split_docs = splitter.split_documents(documents)
@@ -96,38 +96,20 @@ def generate_answer(prompt):
 # ---------------- SEARCH FUNCTION ----------------
 
 def search_bank_answer(db, query):
-
-    docs_and_scores = db.similarity_search_with_score(query, k=3)
-
-    if not docs_and_scores:
-        return "I could not find the answer in RBI documents."
-
-    best_doc, score = docs_and_scores[0]
-
-    st.write(f"Similarity Score: {score}")
-
-    context = "\n\n".join(
-        [doc.page_content for doc, _ in docs_and_scores]
-    )
-
-    prompt = f"""
-You are an RBI Banking Assistant.
-
-Answer clearly and shortly using RBI context only.
-
-Context:
-{context}
-
-Question:
-{query}
-
-Answer:
-"""
-
     try:
-        response = model.generate_content(prompt)
+        docs_and_scores = db.similarity_search_with_score(query, k=1)
 
-        return response.text
+        if len(docs_and_scores) == 0:
+            return "No answer found."
+
+        doc, score = docs_and_scores[0]
+
+        print("Similarity Score:", score)
+
+        if score > 2.0:
+            return "No relevant answer found."
+
+        return doc.page_content
 
     except Exception as e:
-        return f"Gemini Error: {str(e)}"
+        return f"Error: {str(e)}"
