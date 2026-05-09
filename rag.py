@@ -3,11 +3,10 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-
-from dotenv import load_dotenv
 import os
+import streamlit as st
 import google.generativeai as genai
-
+from dotenv import load_dotenv
 load_dotenv()
 
 genai.configure(
