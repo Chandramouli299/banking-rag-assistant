@@ -80,13 +80,15 @@ def initialize_rag_system():
 
 # ---------------- GENERATE ANSWER ----------------
 
-gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-
 def generate_answer(prompt):
 
-    response = gemini_model.generate_content(prompt)
+    try:
+        response = model.generate_content(prompt)
 
-    return response.text
+        return response.text
+
+    except Exception as e:
+        return f"Gemini Error: {str(e)}"
 
 # ---------------- SEARCH FUNCTION ----------------
 
@@ -125,6 +127,10 @@ Question:
 Final Answer:
 """
 
-    response = model.generate_content(prompt)
+    try:
+        response = model.generate_content(prompt)
 
-    return response.text
+        return response.text
+
+    except Exception as e:
+        return f"Gemini Error: {str(e)}"
