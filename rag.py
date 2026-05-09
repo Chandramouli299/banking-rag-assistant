@@ -95,21 +95,41 @@ def generate_answer(prompt):
 
 # ---------------- SEARCH FUNCTION ----------------
 
+BANKING_KEYWORDS = [
+    "bank",
+    "rbi",
+    "account",
+    "loan",
+    "credit",
+    "debit",
+    "kyc",
+    "atm",
+    "upi",
+    "transaction",
+    "card",
+    "interest"
+]
+
+def is_banking_question(query):
+    query = query.lower()
+    return any(word in query for word in BANKING_KEYWORDS)
+
+
 def search_bank_answer(db, query):
-    try:
-        docs_and_scores = db.similarity_search_with_score(query, k=1)
 
-        if len(docs_and_scores) == 0:
-            return "No answer found."
+    if not is_banking_question(query):
+        return "Please ask only banking or RBI-related questions."
 
-        doc, score = docs_and_scores[0]
+    docs_and_scores = db.similarity_search_with_score(query, k=3)
 
-        print("Similarity Score:", score)
+    if not docs_and_scores:
+        return "No answer found."
 
-        if score > 2.0:
-            return "No relevant answer found."
+    doc, score = docs_and_scores[0]
 
-        return doc.page_content
+    print("Similarity Score:", score)
 
-    except Exception as e:
-        return f"Error: {str(e)}"
+    if score > 1.0:
+        return "No relevant RBI information found."
+
+    return doc.page_content
