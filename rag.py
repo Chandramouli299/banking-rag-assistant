@@ -7,11 +7,15 @@ import os
 import streamlit as st
 import google.generativeai as genai
 from dotenv import load_dotenv
+
 load_dotenv()
 
 genai.configure(
     api_key=os.getenv("GEMINI_API_KEY")
 )
+
+# INITIALIZE MODEL
+model = genai.GenerativeModel("gemini-1.5-flash")
 # ---------------- LOAD PDF ----------------
 
 def load_bank_documents():
@@ -98,7 +102,7 @@ def search_bank_answer(db, query):
 
     st.write(f"Similarity Score: {score}")
 
-    if score > 10:
+    if score > 3.0:
         return "I could not find the answer in the RBI documents."
 
     context = "\n\n".join(
