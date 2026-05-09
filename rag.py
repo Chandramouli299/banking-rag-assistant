@@ -107,7 +107,16 @@ BANKING_KEYWORDS = [
     "upi",
     "transaction",
     "card",
-    "interest"
+    "interest",
+    "emi",
+    "customer",
+    "balance",
+    "payment",
+    "finance",
+    "banking",
+    "deposit",
+    "withdraw",
+    "money"
 ]
 
 def is_banking_question(query):
@@ -117,19 +126,44 @@ def is_banking_question(query):
 
 def search_bank_answer(db, query):
 
+    # Check banking-related query
     if not is_banking_question(query):
         return "Please ask only banking or RBI-related questions."
 
+    # Search similar documents
     docs_and_scores = db.similarity_search_with_score(query, k=3)
 
     if not docs_and_scores:
         return "No answer found."
 
+    # Get best document
     doc, score = docs_and_scores[0]
 
     print("Similarity Score:", score)
 
+    # Filter irrelevant answers
     if score > 2.5:
         return "No relevant RBI information found."
 
-    return doc.page_content
+    # Extract retrieved context
+    context = doc.page_content
+
+    # Create prompt for Gemini
+    prompt = f"""
+    You are an RBI Banking Assistant.
+
+    Use the below context to answer the user's question.
+
+    Context:
+    {context}
+
+    Question:
+    {query}
+
+    Give a short, clear, and user-friendly answer.
+    """
+
+    # Generate answer using Gemini
+    answer = generate_answer(prompt)
+
+    return answer
