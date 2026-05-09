@@ -85,27 +85,39 @@ def generate_answer(prompt):
 
 def search_bank_answer(db, query):
 
-    docs = db.max_marginal_relevance_search(
-        query,
-        k=2,
-        fetch_k=10
-    )
+    # Retrieve documents with scores
+    docs_and_scores = db.similarity_search_with_score(query, k=3)
 
-    if not docs:
-        return "I could not find the answer."
+    if not docs_and_scores:
+        return "I could not find the answer in the RBI documents."
 
-    context = docs[0].page_content
+    best_doc, score = docs_and_scores[0]
+
+    # Filter unrelated questions
+    if score > 1.0:
+        return "I could not find the answer in the RBI documents."
+
+    context = best_doc.page_content
 
     prompt = f"""
-    Answer the question using the context below.
+You are an RBI Banking Assistant.
 
-    Context:
-    {context}
+Answer the question in simple and clear language.
 
-    Question:
-    {query}
-    """
+Rules:
+- Only answer using RBI banking context.
+- If unrelated, say you could not find the answer.
+- Keep answer short and clean.
 
-    final_answer = generate_answer(prompt)
+Context:
+{context}
 
-    return final_answer
+Question:
+{query}
+
+Final Answer:
+"""
+
+    response = model.generate_content(prompt)
+
+    return response.text
