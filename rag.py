@@ -78,16 +78,24 @@ def initialize_rag_system():
     return db
 
 # ---------------- GENERATE ANSWER ----------------
-
 def generate_answer(prompt):
 
     try:
         response = model.generate_content(prompt)
 
-        return response.text
+        # Safe response extraction
+        if hasattr(response, "text") and response.text:
+            return response.text
+
+        # Backup extraction
+        if response.candidates:
+            return response.candidates[0].content.parts[0].text
+
+        return "No response generated."
 
     except Exception as e:
         return f"Gemini Error: {str(e)}"
+
 
 # ---------------- SEARCH FUNCTION ----------------
 
