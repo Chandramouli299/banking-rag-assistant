@@ -129,7 +129,7 @@ def search_bank_answer(db, query):
 
     print("Similarity Score:", score)
 
-    if score > 1.0:
+    if score > 2.5:
         return "No relevant RBI information found."
 
     return doc.page_content
