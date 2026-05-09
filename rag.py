@@ -94,7 +94,7 @@ def search_bank_answer(db, query):
     best_doc, score = docs_and_scores[0]
 
     # Filter unrelated questions
-    if score > 1.0:
+    if score > 2.0:
         return "I could not find the answer in the RBI documents."
 
     context = best_doc.page_content
