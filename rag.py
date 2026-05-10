@@ -83,19 +83,26 @@ def generate_answer(prompt):
     try:
         response = model.generate_content(prompt)
 
-        # Safe response extraction
-        if hasattr(response, "text") and response.text:
-            return response.text
+        print("FULL RESPONSE:")
+        print(response)
 
-        # Backup extraction
+        # safest extraction
+        answer = ""
+
         if response.candidates:
-            return response.candidates[0].content.parts[0].text
+            for candidate in response.candidates:
+                if candidate.content.parts:
+                    for part in candidate.content.parts:
+                        if hasattr(part, "text"):
+                            answer += part.text
 
-        return "No response generated."
+        if answer.strip():
+            return answer
+
+        return "No text generated from Gemini."
 
     except Exception as e:
         return f"Gemini Error: {str(e)}"
-
 
 # ---------------- SEARCH FUNCTION ----------------
 
