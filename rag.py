@@ -83,11 +83,32 @@ def generate_answer(prompt):
             contents=prompt
         )
 
-        return response.text
+        print("FULL RESPONSE:")
+        print(response)
+
+        # SAFE TEXT EXTRACTION
+        answer = ""
+
+        if hasattr(response, "candidates"):
+            for candidate in response.candidates:
+
+                if hasattr(candidate, "content"):
+
+                    if hasattr(candidate.content, "parts"):
+
+                        for part in candidate.content.parts:
+
+                            if hasattr(part, "text"):
+
+                                answer += part.text
+
+        if answer.strip():
+            return answer
+
+        return "No response generated from Gemini."
 
     except Exception as e:
         return f"Gemini Error: {str(e)}"
-
 # ---------------- SEARCH FUNCTION ----------------
 
 BANKING_KEYWORDS = [
