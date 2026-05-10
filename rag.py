@@ -5,17 +5,16 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import os
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(
+client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
 # INITIALIZE MODEL
-model = genai.GenerativeModel("gemini-1.5-flash")
 # ---------------- LOAD PDF ----------------
 
 def load_bank_documents():
@@ -81,25 +80,13 @@ def initialize_rag_system():
 def generate_answer(prompt):
 
     try:
-        response = model.generate_content(prompt)
 
-        print("FULL RESPONSE:")
-        print(response)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
 
-        # safest extraction
-        answer = ""
-
-        if response.candidates:
-            for candidate in response.candidates:
-                if candidate.content.parts:
-                    for part in candidate.content.parts:
-                        if hasattr(part, "text"):
-                            answer += part.text
-
-        if answer.strip():
-            return answer
-
-        return "No text generated from Gemini."
+        return response.text
 
     except Exception as e:
         return f"Gemini Error: {str(e)}"
