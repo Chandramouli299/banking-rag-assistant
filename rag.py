@@ -4,6 +4,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import streamlit as st
+import os
 from google import genai
 
 
