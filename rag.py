@@ -126,7 +126,6 @@ def is_banking_question(query):
     return any(word in query for word in BANKING_KEYWORDS)
 
 def search_bank_answer(db, query):
-
     if not is_banking_question(query):
         return "Please ask only banking or RBI-related questions."
 
