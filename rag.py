@@ -111,7 +111,6 @@ def generate_answer(prompt):
     except Exception as e:
         return f"Gemini Error: {str(e)}"
 # ---------------- SEARCH FUNCTION ----------------
-
 BANKING_KEYWORDS = [
     "bank",
     "rbi",
@@ -119,29 +118,30 @@ BANKING_KEYWORDS = [
     "loan",
     "credit",
     "debit",
-    "kyc",
-    "atm",
-    "upi",
-    "transaction",
-    "card",
-    "interest",
-    "emi",
-    "customer",
-    "balance",
-    "payment",
-    "finance",
-    "banking",
-    "deposit",
-    "withdraw",
-    "money"
+    "kyc"
 ]
 
 def is_banking_question(query):
     query = query.lower()
     return any(word in query for word in BANKING_KEYWORDS)
 
-
 def search_bank_answer(db, query):
 
     if not is_banking_question(query):
         return "Please ask only banking or RBI-related questions."
+
+    docs = db.similarity_search(query, k=3)
+
+    context = "\n\n".join([doc.page_content for doc in docs])
+
+    prompt = f"""
+    Context:
+    {context}
+
+    Question:
+    {query}
+    """
+
+    answer = generate_answer(prompt)
+
+    return answer
