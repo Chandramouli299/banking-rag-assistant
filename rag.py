@@ -109,7 +109,11 @@ def generate_answer(prompt):
         return "No response generated from Gemini."
 
     except Exception as e:
-        return f"Gemini Error: {str(e)}"
+        error_message = str(e)
+
+        if "429" in error_message:
+            return "Gemini API quota exceeded. Please try again later."
+        return f"Gemini Error: {error_message}"
 # ---------------- SEARCH FUNCTION ----------------
 BANKING_KEYWORDS = [
     "bank",
