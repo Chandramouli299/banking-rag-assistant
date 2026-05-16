@@ -21,3 +21,5 @@ sentencepiece
 google-genai
 
 python-dotenv
+
+groq
