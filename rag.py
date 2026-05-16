@@ -5,12 +5,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import streamlit as st
 import os
-from google import genai
+from groq import Groq
 
-
-client = genai.Client(
-    api_key=st.secrets["GEMINI_API_KEY"]
+client = Groq(
+    api_key=st.secrets["GROQ_API_KEY"]
 )
+
 
 # INITIALIZE MODEL
 # ---------------- LOAD PDF ----------------
@@ -80,7 +80,7 @@ def generate_answer(prompt):
     try:
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="llama3-8b-8192",
             contents=prompt
         )
 
