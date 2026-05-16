@@ -107,7 +107,17 @@ BANKING_KEYWORDS = [
     "loan",
     "credit",
     "debit",
-    "kyc"
+    "kyc",
+    "balance",
+    "minimum balance",
+    "interest",
+    "atm",
+    "upi",
+    "transaction",
+    "cheque",
+    "deposit",
+    "withdraw",
+    "card"
 ]
 
 def is_banking_question(query):
