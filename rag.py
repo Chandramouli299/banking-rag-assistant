@@ -79,41 +79,26 @@ def generate_answer(prompt):
 
     try:
 
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
+
             model="llama3-8b-8192",
-            contents=prompt
+
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+
         )
 
-        print("FULL RESPONSE:")
-        print(response)
+        answer = response.choices[0].message.content
 
-        # SAFE TEXT EXTRACTION
-        answer = ""
-
-        if hasattr(response, "candidates"):
-            for candidate in response.candidates:
-
-                if hasattr(candidate, "content"):
-
-                    if hasattr(candidate.content, "parts"):
-
-                        for part in candidate.content.parts:
-
-                            if hasattr(part, "text"):
-
-                                answer += part.text
-
-        if answer.strip():
-            return answer
-
-        return "No response generated from Gemini."
+        return answer
 
     except Exception as e:
-        error_message = str(e)
 
-        if "429" in error_message:
-            return "Gemini API quota exceeded. Please try again later."
-        return f"Gemini Error: {error_message}"
+        return f"Groq Error: {str(e)}"
 # ---------------- SEARCH FUNCTION ----------------
 BANKING_KEYWORDS = [
     "bank",
